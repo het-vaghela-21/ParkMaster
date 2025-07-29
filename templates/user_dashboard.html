@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard - ParkMaster{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user"></i> My Dashboard</h2>
+    <div class="badge bg-info fs-6">Total Spent: ₹{{ "%.2f"|format(total_spent) }}</div>
+</div>
+
+<!-- Active Reservations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-car"></i> Active Reservations</h5>
+            </div>
+            <div class="card-body">
+                {% if active_reservations %}
+                    {% for reservation in active_reservations %}
+                        <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">
+                                    <i class="fas fa-parking"></i> 
+                                    {{ reservation.parking_spot.parking_lot.prime_location_name }}
+                                </h6>
+                                <p class="mb-1">
+                                    <strong>Spot:</strong> {{ reservation.parking_spot.spot_number }} |
+                                    <strong>Duration:</strong> {{ reservation.get_duration_text() }} |
+                                    <strong>Rate:</strong> ₹{{ reservation.parking_spot.parking_lot.price }}/hr
+                                </p>
+                                <small class="text-muted">Started: {{ reservation.parking_timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <a href="{{ url_for('release_parking', reservation_id=reservation.id) }}" 
+                               class="btn btn-danger"
+                               onclick="return confirm('Are you sure you want to release this parking spot?')">
+                                <i class="fas fa-sign-out-alt"></i> Release
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No active parking reservations</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Available Parking Lots -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-map-marker-alt"></i> Available Parking Lots</h5>
+            </div>
+            <div class="card-body">
+                {% if available_lots %}
+                    <div class="row">
+                        {% for lot in available_lots %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ lot.prime_location_name }}</h6>
+                                        <p class="card-text text-muted small">{{ lot.address }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-success">{{ lot.get_available_spots_count() }} available</span>
+                                                <span class="badge bg-primary">₹{{ lot.price }}/hr</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            {% if not active_reservations %}
+                                                <a href="{{ url_for('book_parking', lot_id=lot.id) }}" 
+                                                   class="btn btn-primary btn-sm w-100"
+                                                   onclick="return confirm('Book parking at {{ lot.prime_location_name }}?')">
+                                                    <i class="fas fa-plus"></i> Book Now
+                                                </a>
+                                            {% else %}
+                                                <button class="btn btn-secondary btn-sm w-100" disabled>
+                                                    <i class="fas fa-ban"></i> You have active booking
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-parking fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No parking lots available at the moment</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Bookings -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-history"></i> Recent Bookings</h5>
+                <a href="{{ url_for('my_bookings') }}" class="btn btn-outline-primary btn-sm">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if completed_reservations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>Spot</th>
+                                    <th>Duration</th>
+                                    <th>Cost</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reservation in completed_reservations %}
+                                    <tr>
+                                        <td>{{ reservation.parking_spot.parking_lot.prime_location_name }}</td>
+                                        <td>{{ reservation.parking_spot.spot_number }}</td>
+                                        <td>{{ reservation.get_duration_text() }}</td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                ₹{{ "%.2f"|format(reservation.parking_cost or 0) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ reservation.leaving_timestamp.strftime('%Y-%m-%d') if reservation.leaving_timestamp else '-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No booking history available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

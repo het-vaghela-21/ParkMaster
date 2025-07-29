@@ -1,0 +1,110 @@
+
+{% extends "base.html" %}
+
+{% block title %}Parking Lots - ParkMaster{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-parking"></i> Parking Lots</h2>
+    <a href="{{ url_for('create_parking_lot') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create New Lot
+    </a>
+</div>
+
+
+<div class="row mb-4">
+    <div class="col-md-6 offset-md-3">
+        <form action="{{ url_for('search_parking_lots') }}" method="GET" class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search by location, address, or pin code..." value="{{ search_query if search_query else '' }}">
+            <button class="btn btn-outline-secondary" type="submit">
+                <i class="fas fa-search"></i> Search
+            </button>
+            {% if search_query %}
+                <a href="{{ url_for('parking_lots') }}" class="btn btn-outline-danger">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if lots %}
+    <div class="row">
+        {% for lot in lots %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title">{{ lot.prime_location_name }}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('edit_parking_lot', lot_id=lot.id) }}">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{{ url_for('delete_parking_lot', lot_id=lot.id) }}"
+                                           onclick="return confirm('Are you sure you want to delete this parking lot?')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <p class="card-text text-muted">{{ lot.address }}</p>
+                        <p class="card-text"><strong>Pin Code:</strong> {{ lot.pin_code }}</p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="border rounded p-2">
+                                    <div class="h4 text-success">{{ lot.get_available_spots_count() }}</div>
+                                    <small class="text-muted">Available</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border rounded p-2">
+                                    <div class="h4 text-warning">{{ lot.get_occupied_spots_count() }}</div>
+                                    <small class="text-muted">Occupied</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary fs-6">₹{{ lot.price }}/hour</span>
+                            <span class="badge bg-secondary">{{ lot.maximum_number_of_spots }} spots</span>
+                        </div>
+                        
+                        <div class="progress mt-2" style="height: 10px;">
+                            {% set occupancy_rate = (lot.get_occupied_spots_count() / lot.maximum_number_of_spots * 100) if lot.maximum_number_of_spots > 0 else 0 %}
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: {{ occupancy_rate }}%" 
+                                 aria-valuenow="{{ occupancy_rate }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ "%.1f"|format(occupancy_rate) }}% occupied</small>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <small>Created: {{ lot.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-parking fa-5x text-muted mb-3"></i>
+        <h4 class="text-muted">No Parking Lots</h4>
+        <p class="text-muted">Create your first parking lot to get started.</p>
+        <a href="{{ url_for('create_parking_lot') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create Parking Lot
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

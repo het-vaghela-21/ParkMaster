@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4">
+                <i class="fas fa-car"></i> Welcome to ParkMaster
+            </h1>
+            <p class="lead">Efficient vehicle parking management system for modern cities</p>
+            <hr class="my-4">
+            <p>Manage parking lots, book parking spots, and track your parking history with ease.</p>
+            {% if not session.user_id %}
+                <a class="btn btn-light btn-lg" href="{{ url_for('register') }}" role="button">
+                    Get Started
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Find Parking</h5>
+                        <p class="card-text">Locate available parking spots near you with real-time availability.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mobile-alt fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Easy Booking</h5>
+                        <p class="card-text">Book and manage your parking reservations with just a few clicks.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-money-bill-wave fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Transparent Pricing</h5>
+                        <p class="card-text">Clear pricing with automatic cost calculation based on parking duration.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Quick Access</h5>
+            </div>
+            <div class="card-body">
+                {% if session.user_id %}
+                    {% if session.role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary btn-block mb-2 w-100">
+                            <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                        </a>
+                        <a href="{{ url_for('parking_lots') }}" class="btn btn-outline-primary btn-block mb-2 w-100">
+                            <i class="fas fa-parking"></i> Manage Parking Lots
+                        </a>
+                        <a href="{{ url_for('create_parking_lot') }}" class="btn btn-outline-success btn-block w-100">
+                            <i class="fas fa-plus"></i> Create New Lot
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary btn-block mb-2 w-100">
+                            <i class="fas fa-user"></i> My Dashboard
+                        </a>
+                        <a href="{{ url_for('my_bookings') }}" class="btn btn-outline-primary btn-block w-100">
+                            <i class="fas fa-history"></i> My Bookings
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">Sign in to access your parking dashboard</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-block mb-2 w-100">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-block w-100">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
