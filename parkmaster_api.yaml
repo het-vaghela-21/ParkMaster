@@ -1,0 +1,199 @@
+openapi: 3.0.0
+info:
+  title: ParkMaster API
+  version: 1.0.0
+  description: API specification for ParkMaster – A Flask-based Parking Management System
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /:
+    get:
+      summary: Home page
+      responses:
+        '200':
+          description: Home page loaded
+
+  /register:
+    get:
+      summary: Show user registration form
+      responses:
+        '200':
+          description: Registration page
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '302':
+          description: Redirect after successful registration
+
+  /login:
+    get:
+      summary: Show login form
+      responses:
+        '200':
+          description: Login page
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '302':
+          description: Redirect to dashboard on success
+
+  /logout:
+    get:
+      summary: Logout the user
+      responses:
+        '302':
+          description: Redirect after logout
+
+  /admin/dashboard:
+    get:
+      summary: Admin dashboard view
+      responses:
+        '200':
+          description: Dashboard data for admin
+
+  /admin/add_lot:
+    post:
+      summary: Add a new parking lot
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                total_spots:
+                  type: integer
+      responses:
+        '302':
+          description: Redirect after adding lot
+
+  /admin/edit_lot/{lot_id}:
+    post:
+      summary: Edit a parking lot by ID
+      parameters:
+        - in: path
+          name: lot_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+      responses:
+        '302':
+          description: Redirect after editing
+
+  /admin/delete_lot/{lot_id}:
+    post:
+      summary: Delete a parking lot by ID
+      parameters:
+        - in: path
+          name: lot_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: Redirect after deletion
+
+  /user/dashboard:
+    get:
+      summary: User dashboard view
+      responses:
+        '200':
+          description: Dashboard data for user
+
+  /user/book/{spot_id}:
+    post:
+      summary: Book a parking spot
+      parameters:
+        - in: path
+          name: spot_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: Redirect after booking
+
+  /user/release/{reservation_id}:
+    post:
+      summary: Release a parking spot
+      parameters:
+        - in: path
+          name: reservation_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: Redirect after release
+
+  /user/history:
+    get:
+      summary: View user's parking history
+      responses:
+        '200':
+          description: History page
+
+  /user/profile:
+    get:
+      summary: View user profile
+      responses:
+        '200':
+          description: Profile page
+
+  /user/profile/edit:
+    post:
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '302':
+          description: Redirect after profile update
